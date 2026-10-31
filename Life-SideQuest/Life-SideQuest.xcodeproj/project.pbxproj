@@ -246,6 +246,8 @@
 				DEVELOPMENT_TEAM = U5HVN36M83;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "모험 완료 기록에 사용할 사진을 촬영합니다.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "발급받은 모험 완료증을 사진 보관함에 저장합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -278,6 +280,8 @@
 				DEVELOPMENT_TEAM = U5HVN36M83;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "모험 완료 기록에 사용할 사진을 촬영합니다.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "발급받은 모험 완료증을 사진 보관함에 저장합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
