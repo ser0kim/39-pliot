@@ -2,6 +2,7 @@
 import SwiftUI
 
 struct QuestDetailView: View {
+    @Environment(\.dismiss) private var dismiss
     let quest: Quest
     let accept: () -> Void
     var body: some View {
@@ -24,6 +25,11 @@ struct QuestDetailView: View {
                 }.frame(maxWidth: .infinity, alignment: .leading).guildPanel(padding: 12)
             }.padding(24)
         }.safeAreaInset(edge: .bottom) { GuildButton(title: "의뢰 수락하기", action: accept).padding(24) }
-            .navigationTitle("의뢰 상세").navigationBarTitleDisplayMode(.inline).guildScreen()
+            .guildScreen()
+            .navigationBarBackButtonHidden()
+            .toolbar(.hidden, for: .navigationBar)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                GuildNavigationBar(title: "의뢰 상세", backLabel: "게시판으로 돌아가기", back: { dismiss() })
+            }
     }
 }

@@ -2,6 +2,7 @@
 import SwiftUI
 
 struct CertificateView: View {
+    @Environment(\.dismiss) private var dismiss
     let record: AdventureRecord
     var newlyCompleted = false
     var openArchive: (() -> Void)?
@@ -31,7 +32,14 @@ struct CertificateView: View {
                     }
                 }
             }.padding(24)
-        }.navigationTitle(newlyCompleted ? "" : "모험 기록 #\(String(format: "%04d", record.number))").navigationBarTitleDisplayMode(.inline).guildScreen()
+        }.guildScreen()
+            .navigationBarBackButtonHidden()
+            .toolbar(.hidden, for: .navigationBar)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                if !newlyCompleted {
+                    GuildNavigationBar(title: "모험 기록 #\(String(format: "%04d", record.number))", backLabel: "모험 도감으로 돌아가기", back: { dismiss() })
+                }
+            }
             .alert("완료증 저장", isPresented: Binding(get: { message != nil }, set: { if !$0 { message = nil } })) { Button("확인", role: .cancel) {} } message: { Text(message ?? "") }
     }
 }
