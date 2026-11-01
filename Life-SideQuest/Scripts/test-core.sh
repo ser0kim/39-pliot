@@ -11,5 +11,6 @@ xcrun swiftc -parse-as-library -target arm64-apple-macos14.0 \
  Life-SideQuest/Domain/UseCases/QuestGenerator.swift \
  Life-SideQuest/Data/Repositories/LocalAdventureRepository.swift \
  Life-SideQuest/Presentation/Shared/AdventureSession.swift \
+ Life-SideQuest/Presentation/Features/ViewModels.swift \
  Tests/AdventureRulesTests.swift Tests/QuestGenerationTests.swift -o "$TASK_TEST_DIR/test-core"
 "$TASK_TEST_DIR/test-core"

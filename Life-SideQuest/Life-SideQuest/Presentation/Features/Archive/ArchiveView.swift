@@ -27,7 +27,7 @@ struct ArchiveView: View {
                         }.buttonStyle(.plain)
                     }
                 }
-            }.padding(24)
+            }.padding(24).padding(.bottom, 80)
         }.guildScreen()
     }
     private func categoryButton(_ category: QuestCategory?) -> some View {

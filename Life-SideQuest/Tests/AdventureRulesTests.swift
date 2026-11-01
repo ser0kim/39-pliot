@@ -51,6 +51,12 @@ import Foundation
         check(tryEqual(repository, state), "persistent roundtrip")
         let session = AdventureSession(repository: repository, catalog: LocalQuestRepository())
         check(session.loaded && session.state == state, "session restores")
+        let onboarding = OnboardingViewModel(session: session)
+        check(onboarding.name == state.adventurer?.name && onboarding.handle == state.adventurer?.handle, "onboarding prefills existing identity")
+        let preserved = session.state
+        onboarding.name = "다시시작"
+        check(onboarding.register(), "existing adventurer can continue onboarding")
+        check(session.state.adventurer?.totalExperience == preserved.adventurer?.totalExperience && session.state.records == preserved.records && session.state.activeQuest == preserved.activeQuest, "onboarding preserves experience records and active quest")
         let failing = FailingRepository(state: state)
         let failed = AdventureSession(repository: failing, catalog: LocalQuestRepository())
         check(!failed.update { $0.adventurer?.name = "실패" } && failed.state == state, "failed write preserves state")

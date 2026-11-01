@@ -7,10 +7,19 @@ final class OnboardingViewModel {
     var name = ""
     var handle = ""
     let session: AdventureSession
-    init(session: AdventureSession) { self.session = session }
+    init(session: AdventureSession) {
+        self.session = session
+        name = session.state.adventurer?.name ?? ""
+        handle = session.state.adventurer?.handle ?? ""
+    }
     var valid: Bool { (try? AdventureRules.name(name)) != nil && (try? AdventureRules.handle(handle)) != nil }
-    func register() {
-        session.update { $0.adventurer = try Adventurer(name: AdventureRules.name(name), handle: AdventureRules.handle(handle)) }
+    @discardableResult
+    func register() -> Bool {
+        session.update {
+            $0.adventurer = try Adventurer(
+                name: AdventureRules.name(name), handle: AdventureRules.handle(handle),
+                totalExperience: $0.adventurer?.totalExperience ?? 0)
+        }
     }
 }
 

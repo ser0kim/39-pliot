@@ -8,6 +8,11 @@ struct ContentView: View {
     @State private var selectedTab: MainTab = .board
     @State private var boardPath: [Route] = []
     @State private var archivePath: [Route] = []
+    #if DEBUG
+    @State private var showDevelopmentOnboarding = true
+    #else
+    @State private var showDevelopmentOnboarding = false
+    #endif
     @State private var completedRecord: AdventureRecord?
     var body: some View {
         Group {
@@ -17,8 +22,8 @@ struct ContentView: View {
                     Text("기존 기록은 보존되어 있어요. 잠시 후 다시 시도해주세요.")
                     GuildButton(title: "다시 불러오기") { session.reload() }
                 }.padding(24).guildScreen()
-            } else if session.state.adventurer == nil {
-                OnboardingView(model: OnboardingViewModel(session: session))
+            } else if session.state.adventurer == nil || showDevelopmentOnboarding {
+                OnboardingView(model: OnboardingViewModel(session: session), onRegistered: { showDevelopmentOnboarding = false })
             } else {
                 MainTabView(selection: $selectedTab) {
                     NavigationStack(path: $boardPath) {
