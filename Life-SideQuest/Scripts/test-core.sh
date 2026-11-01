@@ -8,7 +8,8 @@ xcrun swiftc -parse-as-library -target arm64-apple-macos14.0 \
  Life-SideQuest/Domain/Entities/Adventure.swift \
  Life-SideQuest/Domain/Repositories/AdventureRepository.swift \
  Life-SideQuest/Domain/UseCases/AdventureRules.swift \
+ Life-SideQuest/Domain/UseCases/QuestGenerator.swift \
  Life-SideQuest/Data/Repositories/LocalAdventureRepository.swift \
  Life-SideQuest/Presentation/Shared/AdventureSession.swift \
- Tests/AdventureRulesTests.swift -o "$TASK_TEST_DIR/test-core"
+ Tests/AdventureRulesTests.swift Tests/QuestGenerationTests.swift -o "$TASK_TEST_DIR/test-core"
 "$TASK_TEST_DIR/test-core"

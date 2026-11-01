@@ -46,6 +46,7 @@ import Foundation
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
         let repository = LocalAdventureRepository(directory: directory)
+        AdventureRules.prepareRecommendations(&state, quests: quests)
         try repository.save(state)
         check(tryEqual(repository, state), "persistent roundtrip")
         let session = AdventureSession(repository: repository, catalog: LocalQuestRepository())
@@ -57,6 +58,7 @@ import Foundation
         try Data("corrupt".utf8).write(to: path)
         rejects("corrupt file") { _ = try repository.load() }
         check(!AdventureSession(repository: repository, catalog: LocalQuestRepository()).loaded, "corruption blocks overwrite")
+        checks += try QuestGenerationTests.run()
         print("PASS: \(checks) domain and persistence checks")
     }
     static func tryName(_ value: String) -> String? { try? AdventureRules.name(value) }

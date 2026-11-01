@@ -44,20 +44,62 @@ struct AdventureRules {
         }
     }
     static func recommendations(_ quests: [Quest], state: AdventureState) -> [Quest] {
-        let pool = candidates(quests, state: state)
-        let saved = state.recommendedIDs.compactMap { id in pool.first { $0.id == id } }
-        return Array((saved + pool.filter { !state.recommendedIDs.contains($0.id) }).prefix(3))
+        // 저장된 문구·보상 스냅샷이 카탈로그보다 우선한다.
+        let saved = state.boardQuests ?? state.recommendedIDs.compactMap { id in quests.first { $0.id == id } }
+        return Array(candidates(saved, state: state).prefix(3))
+    }
+
+    static func prepareRecommendations(_ state: inout AdventureState, quests: [Quest]) {
+        var random = SystemRandomNumberGenerator()
+        prepareRecommendations(&state, quests: quests, using: &random)
+    }
+
+    static func prepareRecommendations<R: RandomNumberGenerator>(_ state: inout AdventureState, quests: [Quest], using random: inout R) {
+        var saved = recommendations(quests, state: state)
+        var seen = Set<String>()
+        saved = saved.filter { seen.insert($0.id).inserted }
+        let pool = candidates(quests, state: state).filter { !seen.contains($0.id) }
+        let additions = select(pool, count: max(0, 3 - saved.count), recent: state.recentQuestIDs ?? [], using: &random)
+        saved.append(contentsOf: additions)
+        state.boardQuests = saved
+        state.recommendedIDs = saved.map(\.id)
+        remember(additions.map(\.id), state: &state)
+        if state.recentQuestIDs == nil { state.recentQuestIDs = saved.map(\.id) }
+    }
+
+    private static func select<R: RandomNumberGenerator>(_ pool: [Quest], count: Int, recent: [String], using random: inout R) -> [Quest] {
+        guard count > 0 else { return [] }
+        let recentIDs = Set(recent)
+        var eligible = pool.filter { !recentIDs.contains($0.id) }
+        // 후보가 부족할 때만 가장 오래된 노출부터 필요한 수만큼 허용한다.
+        for id in recent where eligible.count < count {
+            if let quest = pool.first(where: { $0.id == id }), !eligible.contains(where: { $0.id == id }) { eligible.append(quest) }
+        }
+        return Array(eligible.shuffled(using: &random).prefix(count))
+    }
+
+    private static func remember(_ ids: [String], state: inout AdventureState) {
+        guard !ids.isEmpty else { return }
+        state.recentQuestIDs = Array(((state.recentQuestIDs ?? []).filter { !ids.contains($0) } + ids).suffix(24))
     }
     static func rerollsRemaining(_ state: AdventureState, now: Date, calendar: Calendar = .current) -> Int {
         guard let day = state.rerollDate, calendar.isDate(day, inSameDayAs: now) else { return 3 }
         return max(0, 3 - state.rerollsUsed)
     }
     static func reroll(_ state: inout AdventureState, quests: [Quest], now: Date) throws {
+        var random = SystemRandomNumberGenerator()
+        try reroll(&state, quests: quests, now: now, using: &random)
+    }
+
+    static func reroll<R: RandomNumberGenerator>(_ state: inout AdventureState, quests: [Quest], now: Date, using random: inout R) throws {
         guard rerollsRemaining(state, now: now) > 0 else { throw AdventureError.rerollLimit }
-        let current = recommendations(quests, state: state).map(\.id)
-        let pool = candidates(quests, state: state)
-        guard let alternative = pool.first(where: { !current.contains($0.id) }) else { throw AdventureError.noAlternative }
-        state.recommendedIDs = [alternative.id] + Array(current.prefix(2))
+        let currentIDs = Set(recommendations(quests, state: state).map(\.id))
+        let pool = candidates(quests, state: state).filter { !currentIDs.contains($0.id) }
+        guard pool.count >= 3 else { throw AdventureError.noAlternative }
+        let selected = select(pool, count: 3, recent: state.recentQuestIDs ?? [], using: &random)
+        state.boardQuests = selected
+        state.recommendedIDs = selected.map(\.id)
+        remember(selected.map(\.id), state: &state)
         if state.rerollDate.map({ !Calendar.current.isDate($0, inSameDayAs: now) }) ?? true { state.rerollsUsed = 0 }
         state.rerollDate = now
         state.rerollsUsed += 1

@@ -47,7 +47,7 @@ struct ContentView: View {
     @ViewBuilder private func destination(_ route: Route) -> some View {
         switch route {
         case .quest(let id):
-            if let quest = session.quests.first(where: { $0.id == id }) {
+            if let quest = session.quest(id: id) {
                 QuestDetailView(quest: quest) {
                     if BoardViewModel(session: session).accept(quest) { boardPath = [] }
                 }
