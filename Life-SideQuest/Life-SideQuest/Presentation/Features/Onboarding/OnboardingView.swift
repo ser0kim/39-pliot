@@ -3,6 +3,7 @@ import SwiftUI
 
 struct OnboardingView: View {
     @State var model: OnboardingViewModel
+    var onRegistered: () -> Void = {}
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -18,7 +19,7 @@ struct OnboardingView: View {
                 Text("영문·숫자·밑줄로 나만의 아이디를 만들어요.").helper()
             }.padding(24)
         }.safeAreaInset(edge: .bottom) {
-            GuildButton(title: "모험 시작하기", isEnabled: model.valid) { model.register() }.padding(24)
+            GuildButton(title: "모험 시작하기", isEnabled: model.valid) { if model.register() { onRegistered() } }.padding(24)
         }.guildScreen().scrollDismissesKeyboard(.interactively)
     }
 }

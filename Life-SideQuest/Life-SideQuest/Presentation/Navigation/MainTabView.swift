@@ -13,9 +13,9 @@ enum MainTab: String, CaseIterable, Identifiable {
     }
     var icon: String {
         switch self {
-        case .board: "guild-compass"
-        case .archive: "guild-book"
-        case .profile: "guild-medal"
+        case .board: "tab-compass"
+        case .archive: "tab-book"
+        case .profile: "tab-medal"
         }
     }
 }
@@ -48,10 +48,11 @@ private struct CustomTabBar: View {
                 Button { selection = tab } label: {
                     VStack(spacing: 5) {
                         Image(tab.icon)
-                            .renderingMode(.template)
+                            .renderingMode(.original)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 22, height: 22)
+                            .colorMultiply(selection == tab ? GuildTheme.gold : .white)
                             .accessibilityHidden(true)
                         Text(tab.title).font(GuildTheme.font(11, weight: .semibold))
                     }
