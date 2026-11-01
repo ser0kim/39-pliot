@@ -22,6 +22,7 @@ enum MainTab: String, CaseIterable, Identifiable {
 
 struct MainTabView<Board: View, Archive: View, Profile: View>: View {
     @Binding var selection: MainTab
+    var showsTabBar = true
     @ViewBuilder var board: () -> Board
     @ViewBuilder var archive: () -> Archive
     @ViewBuilder var profile: () -> Profile
@@ -34,7 +35,7 @@ struct MainTabView<Board: View, Archive: View, Profile: View>: View {
         }
         .toolbar(.hidden, for: .tabBar)
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            CustomTabBar(selection: $selection)
+            if showsTabBar { CustomTabBar(selection: $selection) }
         }
     }
 }

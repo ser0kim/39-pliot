@@ -37,11 +37,13 @@ struct RecordView: View {
             }.padding(24)
         }.safeAreaInset(edge: .bottom) {
             GuildButton(title: "완료증 발급받기", isEnabled: model.valid) { if let record = model.complete() { completed(record) } }.padding(24)
-        }.navigationTitle("모험 기록 남기기").navigationBarTitleDisplayMode(.inline).guildScreen()
+        }.guildScreen()
             .scrollDismissesKeyboard(.interactively)
             .navigationBarBackButtonHidden()
-            .toolbar { ToolbarItem(placement: .topBarLeading) { Button { if model.saveDraft() { dismiss() } } label: { GuildIcon(name: "back", size: 24) }.accessibilityLabel("게시판으로 돌아가기") } }
-            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("임시 저장") { if model.saveDraft() { dismiss() } } } }
+            .toolbar(.hidden, for: .navigationBar)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                GuildNavigationBar(title: "모험 기록 남기기", backLabel: "게시판으로 돌아가기", back: leaveWithDraft, saveDraft: leaveWithDraft)
+            }
             .onChange(of: model.note) { _, value in if value.count > 100 { model.note = String(value.prefix(100)) } }
             .onDisappear { if model.session.state.activeQuest?.acceptanceID == model.acceptanceID { model.saveDraft() } }
             .sheet(isPresented: $showSource, onDismiss: {}) {
@@ -65,6 +67,9 @@ struct RecordView: View {
                 } catch { if !Task.isCancelled { message = "사진을 불러오지 못했어요. 다른 사진을 선택해주세요." } }
             }
             .alert("사진 안내", isPresented: Binding(get: { message != nil }, set: { if !$0 { message = nil } })) { Button("확인", role: .cancel) {} } message: { Text(message ?? "") }
+    }
+    private func leaveWithDraft() {
+        if model.saveDraft() { dismiss() }
     }
     private func setPhoto(_ image: UIImage) {
         guard let data = PhotoServices.normalized(image) else { message = "사진을 처리하지 못했어요."; return }

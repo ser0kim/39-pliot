@@ -25,7 +25,7 @@ struct ContentView: View {
             } else if session.state.adventurer == nil || showDevelopmentOnboarding {
                 OnboardingView(model: OnboardingViewModel(session: session), onRegistered: { showDevelopmentOnboarding = false })
             } else {
-                MainTabView(selection: $selectedTab) {
+                MainTabView(selection: $selectedTab, showsTabBar: showsTabBar) {
                     NavigationStack(path: $boardPath) {
                         BoardView(model: BoardViewModel(session: session), openQuest: { boardPath.append(.quest($0.id)) }, writeRecord: { boardPath.append(.write($0.acceptanceID)) })
                             .navigationDestination(for: Route.self) { route in destination(route) }
@@ -50,6 +50,13 @@ struct ContentView: View {
                 }, openBoard: { completedRecord = nil; selectedTab = .board; boardPath = [] })
             }
             .alert("모험 안내", isPresented: Binding(get: { session.error != nil && session.loaded }, set: { if !$0 { session.error = nil } })) { Button("확인", role: .cancel) {} } message: { Text(session.error ?? "") }
+    }
+    private var showsTabBar: Bool {
+        switch selectedTab {
+        case .board: boardPath.isEmpty
+        case .archive: archivePath.isEmpty
+        case .profile: true
+        }
     }
     @ViewBuilder private func destination(_ route: Route) -> some View {
         switch route {
