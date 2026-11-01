@@ -33,6 +33,6 @@ struct LocalQuestRepository: QuestRepository {
             Quest(id: "shelf", number: 6, category: .conquest, title: "잠든 책장의 재발견", summary: "책장 속 잊힌 책 한 권을 깨워주세요.", story: "오랫동안 펼치지 않은 책을 만나봐요.", place: .home, minutes: 30, reward: 30, steps: ["책장에서 오래된 책 한 권을 골라요.", "마음에 드는 한 쪽을 읽고 주변을 정돈해요."], requirement: "다시 만난 책 사진 한 장 남기기"),
             Quest(id: "color", number: 7, category: .taste, title: "오늘의 색을 찾아서", summary: "지금 마음에 드는 색을 하나 모아보세요.", story: "오늘의 기분을 색으로 표현해봐요.", place: .anywhere, minutes: 10, reward: 20, steps: ["마음에 드는 색을 하나 골라요.", "그 색을 가진 물건이나 풍경을 찾아요."], requirement: "선택한 색이 담긴 사진 남기기"),
             Quest(id: "park", number: 8, category: .exploration, title: "초록빛 쉼터 탐사", summary: "가까운 공원에서 작은 쉼표를 찾아보세요.", story: "가까운 초록빛 공간에서 잠시 쉬어가요.", place: .outside, minutes: 30, reward: 30, steps: ["가까운 공원이나 산책로를 찾아요.", "안전하게 걸으며 쉬고 싶은 자리를 발견해요."], requirement: "발견한 쉼터 사진 한 장 남기기")
-        ]
+        ] + QuestGenerator.variants()
     }
 }

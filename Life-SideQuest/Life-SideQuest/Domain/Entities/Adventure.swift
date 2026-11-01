@@ -79,6 +79,9 @@ struct AdventureState: Codable, Equatable, Sendable {
     var records: [AdventureRecord] = []
     var filter = QuestFilter()
     var recommendedIDs: [String] = []
+    // Optional로 추가해 이전 저장 파일도 그대로 읽는다.
+    var boardQuests: [Quest]?
+    var recentQuestIDs: [String]?
     var rerollDate: Date?
     var rerollsUsed = 0
 }
