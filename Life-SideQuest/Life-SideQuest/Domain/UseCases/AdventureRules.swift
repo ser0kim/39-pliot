@@ -8,7 +8,7 @@ struct GrowthPolicy {
 }
 
 enum AdventureError: LocalizedError {
-    case invalidName, invalidHandle, activeQuestExists, noActiveQuest, photoRequired, noteTooLong, noAlternative, rerollLimit, notRegistered
+    case invalidName, invalidHandle, activeQuestExists, noActiveQuest, photoRequired, noteTooLong, noAlternative, notRegistered
     var errorDescription: String? {
         switch self {
         case .invalidName: "모험가 이름을 1~10자로 입력해주세요."
@@ -18,7 +18,6 @@ enum AdventureError: LocalizedError {
         case .photoRequired: "완료 사진을 한 장 남겨주세요."
         case .noteTooLong: "한마디는 100자까지 입력할 수 있어요."
         case .noAlternative: "조건에 맞는 다른 의뢰가 없어요. 조건을 바꿔보세요."
-        case .rerollLimit: "오늘의 재추첨을 모두 사용했어요. 내일 다시 만나요."
         case .notRegistered: "모험가 등록을 먼저 완료해주세요."
         }
     }
@@ -82,17 +81,12 @@ struct AdventureRules {
         guard !ids.isEmpty else { return }
         state.recentQuestIDs = Array(((state.recentQuestIDs ?? []).filter { !ids.contains($0) } + ids).suffix(24))
     }
-    static func rerollsRemaining(_ state: AdventureState, now: Date, calendar: Calendar = .current) -> Int {
-        guard let day = state.rerollDate, calendar.isDate(day, inSameDayAs: now) else { return 3 }
-        return max(0, 3 - state.rerollsUsed)
-    }
     static func reroll(_ state: inout AdventureState, quests: [Quest], now: Date) throws {
         var random = SystemRandomNumberGenerator()
         try reroll(&state, quests: quests, now: now, using: &random)
     }
 
     static func reroll<R: RandomNumberGenerator>(_ state: inout AdventureState, quests: [Quest], now: Date, using random: inout R) throws {
-        guard rerollsRemaining(state, now: now) > 0 else { throw AdventureError.rerollLimit }
         let currentIDs = Set(recommendations(quests, state: state).map(\.id))
         let pool = candidates(quests, state: state).filter { !currentIDs.contains($0.id) }
         guard pool.count >= 3 else { throw AdventureError.noAlternative }
@@ -100,9 +94,7 @@ struct AdventureRules {
         state.boardQuests = selected
         state.recommendedIDs = selected.map(\.id)
         remember(selected.map(\.id), state: &state)
-        if state.rerollDate.map({ !Calendar.current.isDate($0, inSameDayAs: now) }) ?? true { state.rerollsUsed = 0 }
-        state.rerollDate = now
-        state.rerollsUsed += 1
+
     }
     static func accept(_ quest: Quest, state: inout AdventureState, now: Date) throws {
         guard state.adventurer != nil else { throw AdventureError.notRegistered }

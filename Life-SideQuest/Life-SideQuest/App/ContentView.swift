@@ -5,7 +5,7 @@ private enum Route: Hashable { case quest(String), record(UUID), write(UUID) }
 
 struct ContentView: View {
     @State private var session = AdventureSession(repository: LocalAdventureRepository(), catalog: LocalQuestRepository())
-    @State private var selectedTab = 0
+    @State private var selectedTab: MainTab = .board
     @State private var boardPath: [Route] = []
     @State private var archivePath: [Route] = []
     @State private var completedRecord: AdventureRecord?
@@ -20,27 +20,29 @@ struct ContentView: View {
             } else if session.state.adventurer == nil {
                 OnboardingView(model: OnboardingViewModel(session: session))
             } else {
-                TabView(selection: $selectedTab) {
+                MainTabView(selection: $selectedTab) {
                     NavigationStack(path: $boardPath) {
                         BoardView(model: BoardViewModel(session: session), openQuest: { boardPath.append(.quest($0.id)) }, writeRecord: { boardPath.append(.write($0.acceptanceID)) })
                             .navigationDestination(for: Route.self) { route in destination(route) }
                             .toolbar(.hidden, for: .navigationBar)
-                    }.tabItem { Label { Text("의뢰 게시판") } icon: { Image("guild-compass") } }.tag(0)
+                    }
+                } archive: {
                     NavigationStack(path: $archivePath) {
                         ArchiveView(model: ArchiveViewModel(session: session), openRecord: { archivePath.append(.record($0.id)) })
                             .navigationDestination(for: Route.self) { route in destination(route) }
                             .toolbar(.hidden, for: .navigationBar)
-                    }.tabItem { Label { Text("모험 도감") } icon: { Image("guild-book") } }.tag(1)
+                    }
+                } profile: {
                     NavigationStack {
                         ProfileView(model: ProfileViewModel(session: session)).toolbar(.hidden, for: .navigationBar)
-                    }.tabItem { Label { Text("모험가증") } icon: { Image("guild-medal") } }.tag(2)
-                }.toolbarBackground(GuildTheme.card, for: .tabBar).toolbarBackground(.visible, for: .tabBar)
+                    }
+                }
             }
         }.tint(GuildTheme.gold).preferredColorScheme(.dark)
             .fullScreenCover(item: $completedRecord) { record in
                 CertificateView(record: record, newlyCompleted: true, openArchive: {
-                    completedRecord = nil; selectedTab = 1; archivePath = [.record(record.id)]
-                }, openBoard: { completedRecord = nil; selectedTab = 0; boardPath = [] })
+                    completedRecord = nil; selectedTab = .archive; archivePath = [.record(record.id)]
+                }, openBoard: { completedRecord = nil; selectedTab = .board; boardPath = [] })
             }
             .alert("모험 안내", isPresented: Binding(get: { session.error != nil && session.loaded }, set: { if !$0 { session.error = nil } })) { Button("확인", role: .cancel) {} } message: { Text(session.error ?? "") }
     }

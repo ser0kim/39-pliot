@@ -37,9 +37,7 @@ struct BoardView: View {
                     }
                 }
                 if model.recommendations.isEmpty { GuildEmptyState(title: "새로운 의뢰를 기다리는 중", message: "조건을 바꾸거나 다른 모험을 찾아보세요.") }
-                TimelineView(.periodic(from: .now, by: 60)) { _ in
-                    GuildButton(title: "다른 의뢰 보기 (\(model.remaining)/3)", secondary: true, isEnabled: model.remaining > 0) { model.reroll() }
-                }
+                GuildButton(title: "다른 의뢰 보기", secondary: true) { model.reroll() }
             }.padding(24)
         }.guildScreen()
             .overlay { if showFilter { filterDialog } }

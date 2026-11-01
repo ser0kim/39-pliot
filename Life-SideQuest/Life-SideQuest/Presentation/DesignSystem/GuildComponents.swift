@@ -100,17 +100,23 @@ struct AdventurePhoto: View {
     let data: Data?
     var height: CGFloat = 164
     var body: some View {
-        Group {
-            if let data, let image = UIImage(data: data) {
-                Image(uiImage: image).resizable().scaledToFill()
-            } else {
-                VStack(spacing: 12) {
-                    GuildIcon(name: "camera", size: 32)
-                    Text("모험의 흔적을 남겨주세요").font(GuildTheme.font(12))
-                }.frame(maxWidth: .infinity).background(GuildTheme.sage)
+        GeometryReader { geometry in
+            Group {
+                if let data, let image = UIImage(data: data) {
+                    Image(uiImage: image).resizable().scaledToFill()
+                } else {
+                    VStack(spacing: 12) {
+                        GuildIcon(name: "camera", size: 32)
+                        Text("모험의 흔적을 남겨주세요").font(GuildTheme.font(12))
+                    }.frame(maxWidth: .infinity, maxHeight: .infinity).background(GuildTheme.sage)
+                }
             }
-        }.frame(height: height).frame(maxWidth: .infinity).clipped()
-            .clipShape(RoundedRectangle(cornerRadius: 8)).accessibilityLabel("모험 인증 사진")
+            .frame(width: geometry.size.width, height: geometry.size.height)
+            .clipped()
+        }
+        .frame(height: height)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .accessibilityLabel("모험 인증 사진")
     }
 }
 
