@@ -19,7 +19,6 @@ final class BoardViewModel {
     let session: AdventureSession
     init(session: AdventureSession) { self.session = session }
     var recommendations: [Quest] { AdventureRules.recommendations(session.quests, state: session.state) }
-    var remaining: Int { AdventureRules.rerollsRemaining(session.state, now: Date()) }
     func reroll() { session.update { try AdventureRules.reroll(&$0, quests: session.quests, now: Date()) } }
     func apply(_ filter: QuestFilter) -> Bool { session.update { $0.filter = filter; $0.recommendedIDs = []; $0.boardQuests = nil } }
     func cancel() -> Bool { session.update { $0.activeQuest = nil } }

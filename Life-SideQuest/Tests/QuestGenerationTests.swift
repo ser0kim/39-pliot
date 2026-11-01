@@ -41,17 +41,12 @@ struct SeededQuestRandom: RandomNumberGenerator {
         let initial = state
         AdventureRules.prepareRecommendations(&state, quests: catalog, using: &rng)
         check(state == initial, "render and reload do not shuffle stable board")
-        for _ in 0..<3 {
+        for _ in 0..<30 {
             let previous = Set(state.recommendedIDs)
             let recent = Set(state.recentQuestIDs ?? [])
             try AdventureRules.reroll(&state, quests: catalog, now: now, using: &rng)
             check(state.recommendedIDs.count == 3 && Set(state.recommendedIDs).isDisjoint(with: previous), "all three replaced")
             check(Set(state.recommendedIDs).isDisjoint(with: recent), "recent exposure avoided when possible")
-        }
-        let exhausted = state
-        do { try AdventureRules.reroll(&state, quests: catalog, now: now, using: &rng); preconditionFailure("daily cap") } catch { check(state == exhausted, "rejected reroll leaves state untouched") }
-        for day in 1...10 {
-            try AdventureRules.reroll(&state, quests: catalog, now: now.addingTimeInterval(Double(day) * 86400), using: &rng)
         }
         check(state.recentQuestIDs?.count == 24 && Set(state.recentQuestIDs ?? []).count == 24, "bounded persisted recent history")
         for place in QuestPlace.allCases {
@@ -107,7 +102,7 @@ struct SeededQuestRandom: RandomNumberGenerator {
         check(Set(crowded.recommendedIDs) == Set(variants.prefix(3).map(\.id)), "only oldest recent candidates relaxed when necessary")
         let failing = FailingRepository(state: initial)
         let failedSession = AdventureSession(repository: failing, catalog: LocalQuestRepository())
-        check(failedSession.loaded && !failedSession.update { try AdventureRules.reroll(&$0, quests: catalog, now: now) } && failedSession.state == initial, "failed reroll save preserves board quota and history")
+        check(failedSession.loaded && !failedSession.update { try AdventureRules.reroll(&$0, quests: catalog, now: now) } && failedSession.state == initial, "failed reroll save preserves board and history")
         var deterministicA = AdventureState(), deterministicB = AdventureState()
         var seedA = SeededQuestRandom(value: 7), seedB = SeededQuestRandom(value: 7)
         AdventureRules.prepareRecommendations(&deterministicA, quests: variants, using: &seedA)

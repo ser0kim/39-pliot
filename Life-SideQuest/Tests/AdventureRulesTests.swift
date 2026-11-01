@@ -25,9 +25,9 @@ import Foundation
         check(filtered.contains(where: { $0.place == .anywhere }), "anywhere matching home")
         check(!filtered.contains(where: { $0.place == .outside || $0.minutes > 10 }), "combined filter")
         state.filter = QuestFilter()
-        for _ in 0..<3 { try AdventureRules.reroll(&state, quests: quests, now: now) }
-        rejects("reroll cap") { try AdventureRules.reroll(&state, quests: quests, now: now) }
-        check(AdventureRules.rerollsRemaining(state, now: now.addingTimeInterval(86400)) == 3, "daily reset")
+        state.rerollDate = now; state.rerollsUsed = 3
+        for _ in 0..<20 { try AdventureRules.reroll(&state, quests: quests, now: now) }
+        check(state.boardQuests?.count == 3, "unlimited rerolls including legacy exhausted quota")
         try AdventureRules.accept(quests[0], state: &state, now: now)
         let acceptance = state.activeQuest!.acceptanceID
         rejects("one active") { try AdventureRules.accept(quests[1], state: &state, now: now) }
